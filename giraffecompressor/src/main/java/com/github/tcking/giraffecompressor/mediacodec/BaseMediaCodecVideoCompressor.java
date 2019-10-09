@@ -43,6 +43,26 @@ public abstract class BaseMediaCodecVideoCompressor extends GiraffeCompressor {
     protected MediaFormat initOutputVideoMediaFormat(TrackInfo trackInfo) {
         int width = trackInfo.getVideoMediaFormat().getInteger(MediaFormat.KEY_WIDTH);
         int height = trackInfo.getVideoMediaFormat().getInteger(MediaFormat.KEY_HEIGHT);
+        int rotationValue = trackInfo.getVideoMediaFormat().getInteger(MediaFormat.KEY_ROTATION);
+        if (Build.VERSION.SDK_INT > 20) {
+            if (rotationValue == 90) {
+                int temp = height;
+                height = width;
+                width = temp;
+                rotationValue = 0;
+                rotateRender = 270;
+            } else if (rotationValue == 180) {
+                rotateRender = 180;
+                rotationValue = 0;
+            } else if (rotationValue == 270) {
+                int temp = height;
+                height = width;
+                width = temp;
+                rotationValue = 0;
+                rotateRender = 90;
+            }
+        }
+
         MediaFormat format = MediaFormat.createVideoFormat("video/avc", (int) (width*resizeFactor), (int) (height*resizeFactor));
         format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
         format.setInteger(MediaFormat.KEY_FRAME_RATE, 24);
